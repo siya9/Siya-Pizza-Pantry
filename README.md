@@ -2,6 +2,11 @@
 
 A modern, animated inventory management web application built with Next.js 15, featuring a clean UI, smooth interactions, and responsive layouts. The interface includes subtle micro-animations for buttons, form transitions, modal openings, and page loading states.
 
+At this stage, the application uses typed mock data and in-memory state management to simulate real inventory behavior (create, update, delete, adjust quantity, audit trail). This allows all screens, validations, loading/error states, and user flows to be implemented and reviewed without prematurely locking in backend or schema decisions.
+
+The frontend architecture is intentionally designed to be backend-ready. All data access is abstracted behind service layers, making it straightforward to replace the mock layer with a real MongoDB-backed API (or any other datastore) in a future phase without refactoring the UI. This approach reduces unnecessary complexity for an early-stage build while preserving a clear upgrade path to MongoDB when server-side persistence becomes part of the scope.
+
+
 ## 🚀 Tech Stack
 
 - **Framework:** Next.js 15 (App Router)
@@ -20,8 +25,8 @@ A modern, animated inventory management web application built with Next.js 15, f
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd pizza-pantry-web
+git clone https://github.com/siya9/Siya-Pizza-Pantry.git
+cd Siya-Pizza-Pantry
 ```
 
 ### 2. Install Dependencies
@@ -113,6 +118,8 @@ This project uses a modern, animated front-end design focused on:
 - **Form Validation:** Client-side validation using Zod schemas
 - **Responsive Design:** Works seamlessly on desktop, tablet, and mobile
 - **Accessibility:** WCAG-compliant with keyboard navigation support
+- **Dark mode:** Switch between dark and light mode with a click of a button
+- **Inventory Charts:** Charts to visualize the inventory data
 
 ## 📝 Design Decisions & Trade-offs
 
