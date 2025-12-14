@@ -24,7 +24,7 @@ export function InventoryChart({ items }: InventoryChartProps) {
 
   // Stock status
   const stockStatus = items.reduce((acc, item) => {
-    if (item.quantity < item.minStock) {
+    if (item.quantity < (item.reorderThreshold || item.minStock || 0)) {
       acc.low += 1;
     } else {
       acc.good += 1;

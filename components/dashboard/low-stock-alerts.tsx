@@ -11,8 +11,12 @@ interface LowStockAlertsProps {
 
 export function LowStockAlerts({ items }: LowStockAlertsProps) {
   const lowStockItems = items
-    .filter(item => item.quantity < item.minStock)
-    .sort((a, b) => (a.quantity / a.minStock) - (b.quantity / b.minStock))
+    .filter(item => item.quantity < (item.reorderThreshold || item.minStock || 0))
+    .sort((a, b) => {
+      const thresholdA = a.reorderThreshold || a.minStock || 0;
+      const thresholdB = b.reorderThreshold || b.minStock || 0;
+      return (a.quantity / thresholdA) - (b.quantity / thresholdB);
+    })
     .slice(0, 5);
 
   if (lowStockItems.length === 0) {
@@ -44,14 +48,15 @@ export function LowStockAlerts({ items }: LowStockAlertsProps) {
       <CardContent>
         <div className="space-y-4">
           {lowStockItems.map((item) => {
-            const percentage = (item.quantity / item.minStock) * 100;
+            const threshold = item.reorderThreshold || item.minStock || 0;
+            const percentage = (item.quantity / threshold) * 100;
             return (
               <div key={item._id} className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-medium">{item.name}</p>
                     <Badge variant="destructive" className="text-xs">
-                      {item.quantity} / {item.minStock} {item.unit}
+                      {item.quantity} / {threshold} {item.unit}
                     </Badge>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 import { InventoryItem, InventoryFilters, SortField } from "@/types/inventory";
 import { InventoryItemFormData, QuantityAdjustmentFormData } from "@/lib/validations";
 import {
@@ -335,7 +336,7 @@ export default function Home() {
                         </TableRow>
                       ) : (
                         filteredAndSortedItems.map((item) => {
-                          const isLowStock = item.quantity < item.minStock;
+                          const isLowStock = item.quantity < (item.reorderThreshold || item.minStock || 0);
                           return (
                             <TableRow key={item._id}>
                               <TableCell>

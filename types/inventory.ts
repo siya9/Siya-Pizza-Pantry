@@ -2,14 +2,16 @@ export interface InventoryItem {
   _id?: string;
   name: string;
   category: string;
-  quantity: number;
   unit: string;
-  minStock: number;
+  quantity: number;
+  reorderThreshold: number; // Renamed from minStock to match requirements
+  costPrice?: number;
   location?: string;
   notes?: string;
   image?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  createdBy?: string; // User ID who created the item
 }
 
 export interface QuantityAdjustment {
@@ -18,11 +20,11 @@ export interface QuantityAdjustment {
   itemName: string;
   previousQuantity: number;
   newQuantity: number;
-  adjustment: number;
+  adjustment: number; // Delta (positive for add, negative for remove)
   reason: string;
   userId: string;
   userName?: string;
-  createdAt?: Date;
+  timestamp: Date; // When the adjustment was made
 }
 
 export interface InventoryHistory {

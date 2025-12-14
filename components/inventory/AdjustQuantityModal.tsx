@@ -101,7 +101,7 @@ export function AdjustQuantityModal({
                   <p className="text-muted-foreground">New Quantity</p>
                   <p
                     className={`text-lg font-semibold ${
-                      newQuantity < item.minStock
+                      newQuantity < (item.reorderThreshold || item.minStock || 0)
                         ? "text-destructive"
                         : ""
                     }`}
@@ -110,9 +110,9 @@ export function AdjustQuantityModal({
                   </p>
                 </div>
               </div>
-              {newQuantity < item.minStock && (
+              {newQuantity < (item.reorderThreshold || item.minStock || 0) && (
                 <p className="mt-2 text-sm text-destructive">
-                  ⚠️ Warning: New quantity will be below minimum stock ({item.minStock} {item.unit})
+                  ⚠️ Warning: New quantity will be below reorder threshold ({(item.reorderThreshold || item.minStock || 0)} {item.unit})
                 </p>
               )}
             </CardContent>

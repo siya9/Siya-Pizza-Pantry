@@ -15,17 +15,24 @@ import {
   ChevronRight,
   Settings,
   BarChart3,
+  History,
+  LogOut,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 const navigation = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Dashboard", href: "/inventory", icon: LayoutDashboard },
+  { name: "Inventory", href: "/inventory", icon: LayoutDashboard },
+  { name: "Audit Log", href: "/audit", icon: History },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [isExpanded, setIsExpanded] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -57,7 +64,15 @@ export function Sidebar() {
   }, []);
 
   const toggleSidebar = () => {
-    setIsExpanded(!isExpanded);
+    const newState = !isExpanded;
+    setIsExpanded(newState);
+    localStorage.setItem("sidebar-expanded", String(newState));
+    window.dispatchEvent(new Event("sidebar-toggle"));
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/sign-in");
   };
 
   return (
@@ -178,6 +193,32 @@ export function Sidebar() {
 
         {/* Footer Section */}
         <div className="border-t p-4 space-y-2">
+          {/* User Info */}
+          {user && (
+            <AnimatePresence>
+              {isExpanded ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-xs text-muted-foreground mb-2"
+                >
+                  <p className="font-medium text-foreground">{user.name}</p>
+                  <p className="text-xs">{user.email}</p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-xs text-muted-foreground text-center mb-2"
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
+
           {/* Theme Toggle */}
           <div className="flex items-center justify-between">
             <AnimatePresence>
@@ -198,16 +239,24 @@ export function Sidebar() {
             </div>
           </div>
 
-          {/* Collapse Indicator */}
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-muted-foreground text-center pt-2"
-            >
-              Press ← to collapse
-            </motion.div>
-          )}
+          {/* Logout Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className={cn("w-full", !isExpanded && "px-2")}
+          >
+            <LogOut className={cn("h-4 w-4", isExpanded && "mr-2")} />
+            {isExpanded && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                Logout
+              </motion.span>
+            )}
+          </Button>
         </div>
       </aside>
 

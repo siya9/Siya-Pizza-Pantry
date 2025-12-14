@@ -3,6 +3,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { InventoryItem, InventoryFilters, SortField } from "@/types/inventory";
 import { InventoryItemFormData, QuantityAdjustmentFormData } from "@/lib/validations";
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { useAuth } from "@/contexts/auth-context";
+import { logAuditEntry } from "@/lib/audit-trail";
 import {
   Table,
   TableHeader,
@@ -42,6 +45,7 @@ import {
 const STORAGE_KEY = "pizza-pantry-inventory";
 
 export default function InventoryPage() {
+  const { user } = useAuth();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -140,13 +144,28 @@ export default function InventoryPage() {
       image: data.image || undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
+      createdBy: user?.id,
     };
     setItems((prev) => [...prev, newItem]);
+    
+    // Log audit entry
+    if (user) {
+      logAuditEntry({
+        itemId: newItem._id!,
+        itemName: newItem.name,
+        action: "created",
+        userId: user.id,
+        userName: user.name,
+        details: `Created item: ${newItem.name}`,
+      });
+    }
+    
     setIsAddModalOpen(false);
   };
 
   const handleEditItem = async (data: InventoryItemFormData) => {
     if (!selectedItem?._id) return;
+    const oldItem = selectedItem;
     setItems((prev) =>
       prev.map((item) =>
         item._id === selectedItem._id
@@ -154,17 +173,44 @@ export default function InventoryPage() {
           : item
       )
     );
+    
+    // Log audit entry
+    if (user) {
+      logAuditEntry({
+        itemId: selectedItem._id,
+        itemName: data.name,
+        action: "updated",
+        userId: user.id,
+        userName: user.name,
+        details: `Updated item: ${data.name}`,
+      });
+    }
+    
     setIsEditModalOpen(false);
     setSelectedItem(null);
   };
 
   const handleDeleteItem = async (id: string) => {
     if (!confirm("Are you sure you want to delete this item?")) return;
+    const itemToDelete = items.find((item) => item._id === id);
     setItems((prev) => prev.filter((item) => item._id !== id));
+    
+    // Log audit entry
+    if (user && itemToDelete) {
+      logAuditEntry({
+        itemId: id,
+        itemName: itemToDelete.name,
+        action: "deleted",
+        userId: user.id,
+        userName: user.name,
+        details: `Deleted item: ${itemToDelete.name}`,
+      });
+    }
   };
 
   const handleAdjustQuantity = async (data: QuantityAdjustmentFormData) => {
     if (!selectedItem?._id) return;
+    const previousQuantity = selectedItem.quantity;
     const newQuantity = Math.max(0, selectedItem.quantity + data.adjustment);
     setItems((prev) =>
       prev.map((item) =>
@@ -173,6 +219,22 @@ export default function InventoryPage() {
           : item
       )
     );
+    
+    // Log audit entry
+    if (user) {
+      logAuditEntry({
+        itemId: selectedItem._id,
+        itemName: selectedItem.name,
+        action: "quantity_adjusted",
+        previousQuantity,
+        newQuantity,
+        adjustment: data.adjustment,
+        reason: data.reason,
+        userId: user.id,
+        userName: user.name,
+      });
+    }
+    
     setIsAdjustModalOpen(false);
     setSelectedItem(null);
   };
@@ -311,7 +373,7 @@ export default function InventoryPage() {
                     </TableRow>
                   ) : (
                     filteredAndSortedItems.map((item) => {
-                      const isLowStock = item.quantity < item.minStock;
+                      const isLowStock = item.quantity < (item.reorderThreshold || 0);
                       return (
                         <TableRow key={item._id}>
                           <TableCell>
