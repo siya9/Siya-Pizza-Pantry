@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,20 @@ import Link from "next/link";
 
 export default function SignUpPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, user, isLoading } = useAuth();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (!isLoading && user) {
+            router.push("/inventory");
+        }
+    }, [user, isLoading, router]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -34,7 +41,7 @@ export default function SignUpPage() {
             return;
         }
 
-        setIsLoading(true);
+        setIsLoadingSubmit(true);
 
         try {
             // For demo purposes, we'll auto-login with the new credentials
@@ -42,7 +49,7 @@ export default function SignUpPage() {
             // For now, we'll use one of the hard-coded accounts
             const success = await login("staff@pizzapantry.com", "staff123");
             if (success) {
-                router.push("/");
+                router.push("/inventory");
                 router.refresh();
             } else {
                 setError("Failed to create account. Please try again.");
@@ -50,9 +57,21 @@ export default function SignUpPage() {
         } catch (err) {
             setError("An error occurred. Please try again.");
         } finally {
-            setIsLoading(false);
+            setIsLoadingSubmit(false);
         }
     };
+
+    // Show loading state while checking auth
+    if (isLoading || user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-muted-foreground">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -83,7 +102,7 @@ export default function SignUpPage() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
-                                disabled={isLoading}
+                                disabled={isLoadingSubmit}
                             />
                         </div>
 
@@ -96,7 +115,7 @@ export default function SignUpPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                disabled={isLoading}
+                                disabled={isLoadingSubmit}
                             />
                         </div>
 
@@ -109,7 +128,7 @@ export default function SignUpPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                disabled={isLoading}
+                                disabled={isLoadingSubmit}
                             />
                         </div>
 
@@ -122,7 +141,7 @@ export default function SignUpPage() {
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
-                                disabled={isLoading}
+                                disabled={isLoadingSubmit}
                             />
                         </div>
 
@@ -131,14 +150,14 @@ export default function SignUpPage() {
                             <p>This is a demo app. Sign up will use a demo account. For full functionality, please sign in with existing credentials.</p>
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
+                        <Button type="submit" className="w-full" disabled={isLoadingSubmit}>
                             <UserPlus className="mr-2 h-4 w-4" />
-                            {isLoading ? "Creating account..." : "Sign Up"}
+                            {isLoadingSubmit ? "Creating account..." : "Sign Up"}
                         </Button>
 
                         <div className="text-center text-sm">
                             <span className="text-muted-foreground">Already have an account? </span>
-                            <Link href="/sign-in" className="text-primary hover:underline">
+                            <Link href="/" className="text-primary hover:underline">
                                 Sign in
                             </Link>
                         </div>

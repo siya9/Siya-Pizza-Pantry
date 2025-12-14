@@ -1,10 +1,10 @@
-import InventoryPage from "@/components/inventory/InventoryPage";
+import HomePage from "@/components/home/HomePage";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 
-export default function Page() {
+export default function Dashboard() {
   return (
     <ProtectedRoute>
-      <InventoryPage/>
+      <HomePage />
     </ProtectedRoute>
   );
 }

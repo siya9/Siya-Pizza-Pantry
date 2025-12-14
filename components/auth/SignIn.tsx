@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
@@ -12,31 +12,69 @@ import Link from "next/link";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+  const hasRedirected = useRef(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && user && !hasRedirected.current) {
+      hasRedirected.current = true;
+      router.replace("/dashboard");
+    }
+  }, [user, isLoading, router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
+    setIsLoadingSubmit(true);
+    hasRedirected.current = false;
 
     try {
       const success = await login(email, password);
       if (success) {
-        router.push("/");
-        router.refresh();
+        // Small delay to ensure React processes the state update
+        // Then navigate - this prevents the infinite loading issue
+        setTimeout(() => {
+          hasRedirected.current = true;
+          router.replace("/dashboard");
+        }, 100);
       } else {
         setError("Invalid email or password");
+        setIsLoadingSubmit(false);
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+      setIsLoadingSubmit(false);
     }
   };
+
+  // Show loading state only while checking initial auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, show loading while redirecting
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -67,7 +105,7 @@ export default function SignInPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isLoadingSubmit}
               />
             </div>
 
@@ -80,7 +118,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isLoadingSubmit}
               />
             </div>
 
@@ -90,9 +128,9 @@ export default function SignInPage() {
               <p>• staff@pizzapantry.com / staff123</p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoadingSubmit}>
               <LogIn className="mr-2 h-4 w-4" />
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoadingSubmit ? "Signing in..." : "Sign In"}
             </Button>
 
             <div className="text-center text-sm">

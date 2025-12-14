@@ -24,7 +24,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
 const navigation = [
-  { name: "Home", href: "/", icon: Home },
+  { name: "Home", href: "/dashboard", icon: Home },
   { name: "Inventory", href: "/inventory", icon: LayoutDashboard },
   { name: "Audit Log", href: "/audit", icon: History },
 ];
@@ -72,7 +72,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     logout();
-    router.push("/sign-in");
+    router.push("/");
   };
 
   return (
