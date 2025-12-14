@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface ItemFormProps {
   item?: InventoryItem;
-  onSubmit: (data: InventoryItemFormData) => Promise<void>;
+  onSubmit: any;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -21,7 +21,7 @@ export function ItemForm({ item, onSubmit, onCancel, isLoading = false }: ItemFo
     category: item?.category || "",
     quantity: item?.quantity || 0,
     unit: item?.unit || "",
-    reorderThreshold: item?.reorderThreshold || item?.minStock || 0,
+    reorderThreshold: item?.reorderThreshold || 0,
     costPrice: item?.costPrice || undefined,
     location: item?.location || "",
     notes: item?.notes || "",
@@ -158,22 +158,22 @@ export function ItemForm({ item, onSubmit, onCancel, isLoading = false }: ItemFo
 
         <div className="space-y-2">
           <Label htmlFor="minStock">
-            Minimum Stock <span className="text-destructive">*</span>
+            Reorder Threshold <span className="text-destructive">*</span>
           </Label>
           <Input
             type="number"
             id="minStock"
             min="0"
             step="0.01"
-            value={formData.minStock}
-            onChange={(e) => handleChange("minStock", parseFloat(e.target.value) || 0)}
-            className={errors.minStock ? "border-destructive" : ""}
-            aria-invalid={!!errors.minStock}
-            aria-describedby={errors.minStock ? "minStock-error" : undefined}
+            value={formData.reorderThreshold}
+            onChange={(e) => handleChange("reorderThreshold", parseFloat(e.target.value) || 0)}
+            className={errors.reorderThreshold ? "border-destructive" : ""}
+            aria-invalid={!!errors.reorderThreshold}
+            aria-describedby={errors.reorderThreshold ? "reorderThreshold-error" : undefined}
           />
-          {errors.minStock && (
-            <p id="minStock-error" className="text-sm text-destructive">
-              {errors.minStock}
+          {errors.reorderThreshold && (
+            <p id="reorderThreshold-error" className="text-sm text-destructive">
+              {errors.reorderThreshold}
             </p>
           )}
         </div>

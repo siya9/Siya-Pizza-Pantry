@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { InventoryItem } from "@/types/inventory";
 import { Trash2, Edit, Copy, Download, Upload } from "lucide-react";
-import { exportToCSV, exportToJSON, downloadFile } from "@/lib/inventory-utils";
+import { exportToCSV, exportToJSON, downloadFile, importFromJSON, importFromCSV } from "@/lib/inventory-utils";
 
 interface BulkOperationsProps {
   selectedItems: string[];

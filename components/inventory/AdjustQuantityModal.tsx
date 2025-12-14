@@ -21,7 +21,7 @@ interface AdjustQuantityModalProps {
   isOpen: boolean;
   onClose: () => void;
   item: InventoryItem;
-  onAdjust: (data: QuantityAdjustmentFormData) => Promise<void>;
+  onAdjust: any;
   isLoading?: boolean;
 }
 
@@ -101,7 +101,7 @@ export function AdjustQuantityModal({
                   <p className="text-muted-foreground">New Quantity</p>
                   <p
                     className={`text-lg font-semibold ${
-                      newQuantity < (item.reorderThreshold || item.minStock || 0)
+                      newQuantity < (item.reorderThreshold || 0)
                         ? "text-destructive"
                         : ""
                     }`}
@@ -110,9 +110,9 @@ export function AdjustQuantityModal({
                   </p>
                 </div>
               </div>
-              {newQuantity < (item.reorderThreshold || item.minStock || 0) && (
+              {newQuantity < (item.reorderThreshold || 0) && (
                 <p className="mt-2 text-sm text-destructive">
-                  ⚠️ Warning: New quantity will be below reorder threshold ({(item.reorderThreshold || item.minStock || 0)} {item.unit})
+                  ⚠️ Warning: New quantity will be below reorder threshold ({(item.reorderThreshold || 0)} {item.unit})
                 </p>
               )}
             </CardContent>
