@@ -49,7 +49,17 @@ yarn dev
 pnpm dev
 ```
 
+### 4. Access Web App
+```bash
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+From the sign in page use either of the credential 
+for the demo (username / password):
+
+• admin@pizzapantry.com / admin123
+
+• staff@pizzapantry.com / staff123
+```
 
 ### 4. Build for Production
 
