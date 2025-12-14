@@ -11,10 +11,10 @@ interface LowStockAlertsProps {
 
 export function LowStockAlerts({ items }: LowStockAlertsProps) {
   const lowStockItems = items
-    .filter(item => item.quantity < (item.reorderThreshold || item.minStock || 0))
+    .filter(item => item.quantity < (item.reorderThreshold || 0))
     .sort((a, b) => {
-      const thresholdA = a.reorderThreshold || a.minStock || 0;
-      const thresholdB = b.reorderThreshold || b.minStock || 0;
+      const thresholdA = a.reorderThreshold || 0;
+      const thresholdB = b.reorderThreshold || 0;
       return (a.quantity / thresholdA) - (b.quantity / thresholdB);
     })
     .slice(0, 5);
@@ -48,7 +48,7 @@ export function LowStockAlerts({ items }: LowStockAlertsProps) {
       <CardContent>
         <div className="space-y-4">
           {lowStockItems.map((item) => {
-            const threshold = item.reorderThreshold || item.minStock || 0;
+            const threshold = item.reorderThreshold || 0;
             const percentage = (item.quantity / threshold) * 100;
             return (
               <div key={item._id} className="flex items-center justify-between">

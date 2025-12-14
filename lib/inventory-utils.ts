@@ -4,15 +4,15 @@ import { InventoryItem } from "@/types/inventory";
  * Export inventory data to CSV format
  */
 export function exportToCSV(items: InventoryItem[]): string {
-  const headers = ["Name", "Category", "Quantity", "Unit", "Min Stock", "Location", "Status"];
+  const headers = ["Name", "Category", "Quantity", "Unit", "Reorder Threshold", "Location", "Status"];
   const rows = items.map((item) => {
-    const status = item.quantity < item.minStock ? "Low Stock" : "In Stock";
+    const status = item.quantity < item.reorderThreshold ? "Low Stock" : "In Stock";
     return [
       item.name,
       item.category,
       item.quantity.toString(),
       item.unit,
-      item.minStock.toString(),
+      item.reorderThreshold.toString(),
       item.location || "",
       status,
     ];
@@ -70,7 +70,7 @@ export function importFromCSV(csvString: string): InventoryItem[] {
       category: values[headers.indexOf("category")] || "",
       quantity: parseFloat(values[headers.indexOf("quantity")] || "0"),
       unit: values[headers.indexOf("unit")] || "",
-      minStock: parseFloat(values[headers.indexOf("min stock")] || "0"),
+      reorderThreshold: parseFloat(values[headers.indexOf("reorder threshold")] || "0"),
       location: values[headers.indexOf("location")] || undefined,
       createdAt: new Date(),
       updatedAt: new Date(),

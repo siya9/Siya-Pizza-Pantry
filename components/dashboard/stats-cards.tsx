@@ -10,8 +10,8 @@ interface StatsCardsProps {
 
 export function StatsCards({ items }: StatsCardsProps) {
   const totalItems = items.length;
-  const lowStockItems = items.filter(item => item.quantity < (item.reorderThreshold || item.minStock || 0)).length;
-  const inStockItems = items.filter(item => item.quantity >= (item.reorderThreshold || item.minStock || 0)).length;
+  const lowStockItems = items.filter(item => item.quantity < (item.reorderThreshold  || 0)).length;
+  const inStockItems = items.filter(item => item.quantity >= (item.reorderThreshold  || 0)).length;
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const categories = new Set(items.map(item => item.category)).size;
 
